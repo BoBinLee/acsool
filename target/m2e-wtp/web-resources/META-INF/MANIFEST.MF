@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Title: acsool
+Implementation-Version: 0.0.1-SNAPSHOT
+Built-By: BoBinLee
+Implementation-Vendor-Id: org.acamp
+Build-Jdk: 1.8.0_05
+Created-By: Maven Integration for Eclipse
+Implementation-Vendor: Pivotal Software, Inc.
+Main-Class: org.acsool.AcsoolApplication
+
