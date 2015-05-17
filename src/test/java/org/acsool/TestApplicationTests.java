@@ -8,12 +8,29 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = Application.class)
+@SpringApplicationConfiguration(classes = AcsoolApplication.class)
 public class TestApplicationTests {
 	@Autowired
 	TestRepository testRepository;
 	
-	@Test
+/*	public enum TestApp {
+		ONE, TWO
+	}
+	
+	public void enumTest(){
+		TestApp app = TestApp.ONE;
+		
+		switch (app) {
+		case ONE :
+			
+			break;
+
+		default:
+			break;
+		}
+	}*/
+	
+//	@Test
 	public void insertTest(){
 //		System.out.println(testRepository.findAll());
 		org.acsool.domain.Test test = new org.acsool.domain.Test();
