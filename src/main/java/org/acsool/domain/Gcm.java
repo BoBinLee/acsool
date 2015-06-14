@@ -5,6 +5,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -15,6 +17,7 @@ import lombok.Data;
 @Entity
 public class Gcm {
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name="gc_id")
 	public long gcId;
 	@Column(name="u_id")

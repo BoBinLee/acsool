@@ -8,6 +8,7 @@ import org.acsool.dto.SL0001;
 import org.acsool.dto.SL0002;
 import org.acsool.dto.SL0003;
 import org.acsool.dto.SL0004;
+import org.acsool.dto.SL0005;
 import org.acsool.dto.SL0006;
 import org.acsool.utils.JacksonUtils;
 import org.junit.Ignore;
@@ -74,12 +75,13 @@ public class ServiceTests {
 	}
 	
 	@Test
+//	@Ignore
 	public void sl0004() {
 		APICode reqCode = new APICode<SL0004>();
 		HashMap<String, String> sl = new HashMap<String, String>();
 
 		sl.put("_sl_no", "1");
-		sl.put("_art_no", "1");
+		sl.put("_art_no", "5");
 		sl.put("_reply_subject", "test");
 		sl.put("_reply_content", "testtest");
 		sl.put("_reply_emotion", "123");
@@ -89,6 +91,24 @@ public class ServiceTests {
 		reqCode.tranData = sl;
 
 		APICode resCode = slService.resSL0004(reqCode);
+		String json = JacksonUtils.objectToJson(resCode);
+		System.out.println(json);
+	}
+	
+	@Test
+	@Ignore
+	public void sl0005() {
+		APICode reqCode = new APICode<SL0005>();
+		HashMap<String, String> sl = new HashMap<String, String>();
+	
+		sl.put("_sl_no", "2");
+		sl.put("_art_no", "5");
+		sl.put("_msg_yn", "Y");
+		
+		reqCode.tranCd = "SL0005";
+		reqCode.tranData = sl;
+
+		APICode resCode = slService.resSL0005(reqCode);
 		String json = JacksonUtils.objectToJson(resCode);
 		System.out.println(json);
 	}

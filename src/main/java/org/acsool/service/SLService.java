@@ -1,14 +1,17 @@
 package org.acsool.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import org.acsool.domain.Article;
 import org.acsool.domain.ArticleFile;
 import org.acsool.domain.ArticleStatus;
+import org.acsool.domain.Gcm;
 import org.acsool.domain.Reply;
 import org.acsool.domain.User;
 import org.acsool.dto.APICode;
@@ -18,9 +21,11 @@ import org.acsool.dto.SL0003;
 import org.acsool.dto.SL0004;
 import org.acsool.dto.SL0005;
 import org.acsool.dto.SL0006;
+import org.acsool.dto.SL0007;
 import org.acsool.repository.ArticleFileRepository;
 import org.acsool.repository.ArticleRepository;
 import org.acsool.repository.ArticleStatusRepository;
+import org.acsool.repository.GcmRepository;
 import org.acsool.repository.ReplyRepository;
 import org.acsool.repository.UserRepository;
 import org.acsool.utils.JacksonUtils;
@@ -31,6 +36,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 
 @Service
 public class SLService {
@@ -46,7 +54,15 @@ public class SLService {
 	public ArticleFileRepository articleFileRepository;
 	@Autowired
 	public ArticleStatusRepository articleStatusRepository;
-
+	@Autowired
+	public GcmRepository gcmRepository;
+	
+	@Autowired
+	public GCMService gcmService;
+	
+	@Autowired
+	public Cloudinary cloudinary;
+	
 	// 게시글쓰기
 	public APICode resSL0001(APICode reqCode) {
 		HashMap<String, String> hashMap = (HashMap<String, String>) reqCode.tranData;
@@ -164,14 +180,18 @@ public class SLService {
 			article.zanCount += 1;
 			articleRepository.save(article);
 			// 알람 보내기 - 게시글 유저에게
-			// TODO
+			Gcm gcm = gcmRepository.findByUId(article.uId);
+			
+			if(gcm.pushYn.equals("Y"))
+				gcmService.sendZanMessage(new String[]{gcm.pushToken}, reply);
 		}
 		sl.rsltYn = "Y";
-		
+
 		APICode resCode = this.<SL0004> processCommonResponse(reqCode, sl);
 		return resCode;
 	}
 
+	// 메시지 선택
 	public APICode resSL0005(APICode reqCode) {
 		HashMap<String, String> hashMap = (HashMap<String, String>) reqCode.tranData;
 		SL0005 sl = JacksonUtils.<SL0005> hashMapToObject(hashMap, SL0005.class);
@@ -187,6 +207,7 @@ public class SLService {
 			status.status = 2;
 		articleStatusRepository.save(status);
 
+		sl.rsltYn = "Y";
 		APICode resCode = this.<SL0005> processCommonResponse(reqCode, sl);
 		return resCode;
 	}
@@ -221,6 +242,36 @@ public class SLService {
 		return resCode;
 	}
 
+	// 파일 업로드
+	public APICode resSL0007(APICode reqCode) {
+		HashMap<String, String> hashMap = (HashMap<String, String>) reqCode.tranData;
+		SL0007 sl = JacksonUtils.<SL0007> hashMapToObject(hashMap, SL0007.class);
+		
+		ArticleFile articleFile = new ArticleFile();
+		articleFile.artId = Long.parseLong(sl.artNo);
+		articleFile.type = sl.type;
+		
+		Map<String, String> uploadResult = null;
+		uploadResult = upload(sl.content);
+		articleFile.publicId = uploadResult.get("public_id");
+		articleFile.url = uploadResult.get("url");
+
+		sl.rsltYn = "Y";
+		APICode resCode = this.<SL0007> processCommonResponse(reqCode, sl);
+		return resCode;
+	}
+	
+	public Map<String, String> upload(byte[] contents){
+		Map<String, String> uploadResult = null;
+		try {
+			uploadResult = cloudinary.uploader().upload(contents,  ObjectUtils.asMap("resource_type", "auto"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return uploadResult;
+	}
+	
+	
 	public <T> APICode<T> processCommonResponse(APICode reqCode, T sl) {
 		// post Response
 		APICode<T> resCode = new APICode<T>();

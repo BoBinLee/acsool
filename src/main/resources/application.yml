@@ -5,4 +5,8 @@ spring:
     username: developer
     password: developer
 server:
-  port: 8080
+  port: 7777
+cloudinary:
+  name: one-person
+  key: 487777781641271
+  secret: QbNKLC0FwKGQ-Cy2tUNLoEjfyyc
