@@ -6,23 +6,30 @@ import org.acsool.domain.Gcm;
 import org.acsool.dto.APICode;
 import org.acsool.dto.PS0001;
 import org.acsool.dto.PS0002;
+import org.acsool.repository.GcmRepository;
+import org.acsool.repository.UserRepository;
 import org.acsool.utils.JacksonUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service("psService")
+@Service
 public class PSService {
+	@Autowired
+	public GcmRepository gcmRepository;
+	@Autowired
+	public UserRepository userRepository;
 	
 	public APICode resPS0001(APICode reqCode){
 		HashMap<String, String> hashMap = (HashMap<String, String>) reqCode.tranData;
 		PS0001 ps = JacksonUtils.<PS0001>hashMapToObject(hashMap, PS0001.class);
 		
 		Gcm gcm = new Gcm();
-		gcm.mac = ps.mac;
+		gcm.uId = userRepository.findBySlId(ps.slNo).uId;
 		gcm.pushYn = ps.pushYn;
-		gcm.tokenId = ps.pushTokenId;
+		gcm.pushToken = ps.pushTokenId;
 		
 		try {
-//			ps.resultYn = (1 == gcmMapper.insertGcm(gcm))? "Y" : "N";
+			gcmRepository.save(gcm);
 		} catch(Exception e){
 			ps.resultYn = "N";
 		}
@@ -34,10 +41,10 @@ public class PSService {
 		HashMap<String, String> hashMap = (HashMap<String, String>) reqCode.tranData;
 		PS0002 ps = JacksonUtils.<PS0002>hashMapToObject(hashMap, PS0002.class);
 		
-		String mac = ps.mac;
-		Gcm gcm = null;
-//		Gcm gcm = gcmMapper.getGcm(mac);
-		ps.pushTokenId = gcm.tokenId;
+		long uid = userRepository.findBySlId(ps.slNo).uId;
+		Gcm gcm = gcmRepository.findByUId(uid);
+		
+		ps.pushTokenId = gcm.pushToken;
 		ps.pushYn = gcm.pushYn;
 		
 		APICode resCode = this.<PS0002>processCommonResponse(reqCode, ps);

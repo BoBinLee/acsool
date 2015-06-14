@@ -7,22 +7,19 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 
 import lombok.Data;
 
 @Data
 @Entity
-public class Gcm {
+public class ArticleFile {
 	@Id
-	@Column(name="gc_id")
-	public long gcId;
-	@Column(name="u_id")
-	public long uId;
-	@Column(name="push_token")
-	public String pushToken;
-	@Column(name="push_yn")
-	public String pushYn;
+	@Column(name="f_id")
+	public long fId;
+	@Column(name="art_id")
+	public long artId;
+	public String type;
+	public String url;
 	public Timestamp created;
 	
 	@PrePersist

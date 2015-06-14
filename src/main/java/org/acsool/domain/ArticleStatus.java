@@ -8,13 +8,14 @@ import lombok.Data;
 
 @Data
 @Entity
-public class User {
+public class ArticleStatus {
 	@Id
+	@Column(name="st_id")
+	public long stId;
+	@Column(name="art_id")
+	public long artId;
 	@Column(name="u_id")
 	public long uId;
-	@Column(name="sl_id")
-	public String slId;
-	public String name;
-	@Column(name="profile_img")
-	public String profileImg;
+	// 0 : 초기상태 1 : 읽은 상태 2: 거부상태
+	public int status;
 }

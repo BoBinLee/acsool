@@ -1,8 +1,7 @@
-package org.acsool;
+package org.acsool.repository;
 
-import org.acsool.repository.ArticleRepository;
+import org.acsool.AcsoolApplication;
 import org.acsool.repository.TestRepository;
-import org.acsool.service.SLService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = AcsoolApplication.class)
-public class TestApplicationTests {
+public class RepositoryTests {
 	@Autowired
 	TestRepository testRepository;
 	@Autowired
@@ -21,5 +20,4 @@ public class TestApplicationTests {
 	public void sl0006(){
 		articleRepository.SumByUId(1);
 	}
-	
 }

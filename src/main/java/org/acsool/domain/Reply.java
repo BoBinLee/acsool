@@ -13,27 +13,22 @@ import lombok.Data;
 
 @Data
 @Entity
-public class Article {
+public class Reply {
 	@Id
+	@Column(name="rep_id")
+	public long repId;
 	@Column(name="art_id")
 	public long artId;
 	@Column(name="u_id")
 	public long uId;
+	public String subject;
 	public String content;
-	@Column(name="zan_cnt")
-	public int zanCount;
-	@Column(name="zan_max_cnt")
-	public int zanMaxCount;
+	public String emotion;
+	public int vertified;
 	public Timestamp created;
-	public Timestamp updated;
 	
 	@PrePersist
 	public void onCreate() {
-		created = updated = new Timestamp((new Date()).getTime());
-	}
-
-	@PreUpdate
-	public void onUpdate() {
-		updated = new Timestamp((new Date()).getTime());
+		created = new Timestamp((new Date()).getTime());
 	}
 }
