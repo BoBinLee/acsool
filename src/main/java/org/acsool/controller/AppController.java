@@ -28,7 +28,6 @@ public class AppController {
 
 		switch (code) {
 		case SL0001:
-			logger.info("SL0001 : ");
 			resCode = sLService.resSL0001(reqCode);
 			break;
 		case SL0002:

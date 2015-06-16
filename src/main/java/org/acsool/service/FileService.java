@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.acsool.domain.ArticleFile;
+import org.acsool.repository.ArticleFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,25 +17,25 @@ import com.cloudinary.utils.ObjectUtils;
 @Service
 public class FileService {
 	@Autowired
-	private FileRepository fileRepository;
+	private ArticleFileRepository articleFileRepository;
 
 	@Autowired
 	Cloudinary cloudinary;
 	
-	public TagFile saveTagFile(TagFile file){
+	public ArticleFile saveArticleFile(ArticleFile file, byte[] contents){
 		Map<String, String> uploadResult = null;
-		if(file.getFileId() == 0){
-			uploadResult = upload(file);
+		if(file.getFId() == 0){
+			uploadResult = upload(contents);
 			file.setPublicId(uploadResult.get("public_id"));
 			file.setUrl(uploadResult.get("url"));
 		}
-		return fileRepository.save(file);
+		return articleFileRepository.save(file);
 	}
 	
-	public Map<String, String> upload(TagFile file){
+	public Map<String, String> upload(byte[] contents){
 		Map<String, String> uploadResult = null;
 		try {
-			uploadResult = cloudinary.uploader().upload(file.getBytes(),  ObjectUtils.asMap("resource_type", "auto"));
+			uploadResult = cloudinary.uploader().upload(contents,  ObjectUtils.asMap("resource_type", "auto"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -41,9 +43,9 @@ public class FileService {
 	}
 	
 	public void delete(long id){
-		TagFile file = findById(id);
+		ArticleFile file = articleFileRepository.findOne(id);
 		deleteResource(file.getPublicId());
-		fileRepository.delete(id);
+		articleFileRepository.delete(id);
 	}
 	
 	public void deleteResource(String publicId){
@@ -54,9 +56,5 @@ public class FileService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public TagFile findById(long fileId){
-		return fileRepository.findOne(fileId);
 	}
 }

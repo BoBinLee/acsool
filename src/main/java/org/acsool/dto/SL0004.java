@@ -15,8 +15,6 @@ public class SL0004 {
 	public String content;
 	@JsonProperty("_reply_emotion")
 	public String emotion;
-	@JsonProperty("_art_zan_yn")
-	public String artZanYn;
 	
 	@JsonProperty("_rslt_yn")
 	public String rsltYn;

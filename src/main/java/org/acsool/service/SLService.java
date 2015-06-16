@@ -1,12 +1,9 @@
 package org.acsool.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 
 import org.acsool.domain.Article;
 import org.acsool.domain.ArticleFile;
@@ -22,6 +19,7 @@ import org.acsool.dto.SL0004;
 import org.acsool.dto.SL0005;
 import org.acsool.dto.SL0006;
 import org.acsool.dto.SL0007;
+import org.acsool.dto.SL0008;
 import org.acsool.repository.ArticleFileRepository;
 import org.acsool.repository.ArticleRepository;
 import org.acsool.repository.ArticleStatusRepository;
@@ -36,9 +34,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 
 @Service
 public class SLService {
@@ -56,13 +51,12 @@ public class SLService {
 	public ArticleStatusRepository articleStatusRepository;
 	@Autowired
 	public GcmRepository gcmRepository;
-	
+
 	@Autowired
 	public GCMService gcmService;
-	
 	@Autowired
-	public Cloudinary cloudinary;
-	
+	public FileService fileService;
+
 	// 게시글쓰기
 	public APICode resSL0001(APICode reqCode) {
 		HashMap<String, String> hashMap = (HashMap<String, String>) reqCode.tranData;
@@ -82,6 +76,7 @@ public class SLService {
 		if (article.zanMaxCount > users.size() - 1)
 			article.zanMaxCount = users.size() - 1;
 		int count = article.zanMaxCount;
+		List<String> tokenIds = new ArrayList<String>();
 
 		while (count >= 0 && users.size() != 0) {
 			int random = (int) Math.floor(Math.random() * users.size());
@@ -93,8 +88,15 @@ public class SLService {
 				status.uId = user.uId;
 				status.status = 0;
 				articleStatusRepository.save(status);
+				// 알림 보내기
+				Gcm gcm = gcmRepository.findByUId(user.uId);
+
+				if (gcm.pushYn.equals("Y"))
+					tokenIds.add(gcm.pushToken);
 			}
 		}
+
+		gcmService.sendArticleMessage((String[]) tokenIds.toArray(), "" + article.artId);
 		articleRepository.save(article);
 
 		APICode resCode = this.<SL0001> processCommonResponse(reqCode, sl);
@@ -119,22 +121,21 @@ public class SLService {
 
 		final List<SL0002.SL0002Data> datas = new ArrayList<SL0002.SL0002Data>();
 
-		articles.forEach(new Consumer<Article>() {
-			public void accept(Article article) {
-				// System.out.println("forEach i :: " + i );
-				SL0002.SL0002Data data = new SL0002.SL0002Data();
-				data.artNo = String.valueOf(article.artId);
-				data.artContent = article.content;
-				data.artCreated = article.created.toString();
-				data.artZanCnt = "" + article.zanCount;
-				data.artZanMaxCnt = "" + article.zanMaxCount;
+		for (int i = 0; i < articles.getContent().size(); i++) {
+			Article article = articles.getContent().get(i);
+			// System.out.println("forEach i :: " + i );
+			SL0002.SL0002Data data = new SL0002.SL0002Data();
+			data.artNo = String.valueOf(article.artId);
+			data.artContent = article.content;
+			data.artCreated = article.created.toString();
+			data.artZanCnt = "" + article.zanCount;
+			data.artZanMaxCnt = "" + article.zanMaxCount;
 
-				ArticleFile file = articleFileRepository.findByArtId(article.artId);
-				if (file != null)
-					data.artAttach = "" + file.url;
-				datas.add(data);
-			}
-		});
+			ArticleFile file = articleFileRepository.findByArtId(article.artId);
+			if (file != null)
+				data.artAttach = "" + file.url;
+			datas.add(data);
+		}
 		sl.datas = datas;
 
 		APICode resCode = this.<SL0002> processCommonResponse(reqCode, sl);
@@ -157,7 +158,7 @@ public class SLService {
 		return resCode;
 	}
 
-	// 짠선택
+	// 답글 쓰기
 	public APICode resSL0004(APICode reqCode) {
 		HashMap<String, String> hashMap = (HashMap<String, String>) reqCode.tranData;
 		SL0004 sl = JacksonUtils.<SL0004> hashMapToObject(hashMap, SL0004.class);
@@ -166,25 +167,23 @@ public class SLService {
 		long uId = userRepository.findBySlId(sl.slNo).uId;
 		Article article = articleRepository.findOne(artId);
 
-		if (sl.artZanYn.equals("Y")) {
-			// 답글 추가
-			Reply reply = new Reply();
-			reply.subject = sl.subject;
-			reply.content = sl.content;
-			reply.emotion = sl.emotion;
-			reply.uId = uId;
-			reply.vertified = 0;
+		// 답글 추가
+		Reply reply = new Reply();
+		reply.subject = sl.subject;
+		reply.content = sl.content;
+		reply.emotion = sl.emotion;
+		reply.uId = uId;
+		reply.vertified = 0;
 
-			replyRepository.save(reply);
-			// 게시글 짠 추가
-			article.zanCount += 1;
-			articleRepository.save(article);
-			// 알람 보내기 - 게시글 유저에게
-			Gcm gcm = gcmRepository.findByUId(article.uId);
-			
-			if(gcm.pushYn.equals("Y"))
-				gcmService.sendZanMessage(new String[]{gcm.pushToken}, reply);
-		}
+		replyRepository.save(reply);
+		// 게시글 짠 추가
+		article.zanCount += 1;
+		articleRepository.save(article);
+		// 알람 보내기 - 게시글 유저에게
+		Gcm gcm = gcmRepository.findByUId(article.uId);
+
+		if (gcm.pushYn.equals("Y"))
+			gcmService.sendReplyMessage(new String[] { gcm.pushToken }, "" + reply.repId);
 		sl.rsltYn = "Y";
 
 		APICode resCode = this.<SL0004> processCommonResponse(reqCode, sl);
@@ -203,8 +202,31 @@ public class SLService {
 		ArticleStatus status = articleStatusRepository.findByUIdAndArtId(uId, artId);
 		if (sl.msgYn.equals("Y"))
 			status.status = 1;
-		else
+		else {
 			status.status = 2;
+			// 다른 유저에게로 옮김
+			List<ArticleStatus> statuses = articleStatusRepository.findByArtId(artId);
+			List<Long> params = new ArrayList<Long>();
+			Article article = articleRepository.findOne(artId);
+
+			for (int i = 0; i < statuses.size(); i++)
+				params.add(statuses.get(i).uId);
+			params.add(article.uId);
+			List<User> users = userRepository.findByNotUIds(params);
+
+			if (users.size() > 0) {
+				int random = (int) Math.floor(users.size() * Math.random());
+				User user = users.remove(random);
+
+				ArticleStatus newStatus = new ArticleStatus();
+				newStatus.artId = artId;
+				newStatus.uId = user.uId;
+				newStatus.status = 0;
+				articleStatusRepository.save(status);
+				// 알리기
+
+			}
+		}
 		articleStatusRepository.save(status);
 
 		sl.rsltYn = "Y";
@@ -246,32 +268,49 @@ public class SLService {
 	public APICode resSL0007(APICode reqCode) {
 		HashMap<String, String> hashMap = (HashMap<String, String>) reqCode.tranData;
 		SL0007 sl = JacksonUtils.<SL0007> hashMapToObject(hashMap, SL0007.class);
-		
+
 		ArticleFile articleFile = new ArticleFile();
 		articleFile.artId = Long.parseLong(sl.artNo);
 		articleFile.type = sl.type;
-		
-		Map<String, String> uploadResult = null;
-		uploadResult = upload(sl.content);
-		articleFile.publicId = uploadResult.get("public_id");
-		articleFile.url = uploadResult.get("url");
 
+		fileService.saveArticleFile(articleFile, sl.content);
 		sl.rsltYn = "Y";
 		APICode resCode = this.<SL0007> processCommonResponse(reqCode, sl);
 		return resCode;
 	}
-	
-	public Map<String, String> upload(byte[] contents){
-		Map<String, String> uploadResult = null;
-		try {
-			uploadResult = cloudinary.uploader().upload(contents,  ObjectUtils.asMap("resource_type", "auto"));
-		} catch (IOException e) {
-			e.printStackTrace();
+
+	// 답글 조회
+	public APICode resSL0008(APICode reqCode) {
+		HashMap<String, String> hashMap = (HashMap<String, String>) reqCode.tranData;
+		final SL0008 sl = JacksonUtils.<SL0008> hashMapToObject(hashMap, SL0008.class);
+
+		long uId = userRepository.findBySlId(sl.slNo).uId;
+		int reqPoCnt = Integer.parseInt(sl.reqPoCnt);
+		int reqPoNo = Integer.parseInt(sl.reqPoNo);
+
+		Pageable pageable = new PageRequest(0, 10);
+		Page<Reply> replies = replyRepository.findByUIdAndVertified(uId, 0, pageable);
+
+		sl.datas = new ArrayList<SL0008.SL0008Data>();
+
+		for (int i = 0; i < replies.getContent().size(); i++) {
+			Reply reply = replies.getContent().get(i);
+			SL0008.SL0008Data data = new SL0008.SL0008Data();
+			data.artNo = "" + reply.artId;
+			data.subject = reply.subject;
+			data.content = reply.content;
+			data.emotion = reply.emotion;
+			sl.datas.add(data);
+
+			reply.vertified = 1;
+			replyRepository.save(reply);
 		}
-		return uploadResult;
+		sl.resCnt = "" + sl.datas.size();
+
+		APICode resCode = this.<SL0008> processCommonResponse(reqCode, sl);
+		return resCode;
 	}
-	
-	
+
 	public <T> APICode<T> processCommonResponse(APICode reqCode, T sl) {
 		// post Response
 		APICode<T> resCode = new APICode<T>();

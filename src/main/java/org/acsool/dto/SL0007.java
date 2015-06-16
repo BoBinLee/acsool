@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class SL0007 {
 	@JsonProperty("_art_no")
 	public String artNo;
-	@JsonProperty("_art_no")
+	@JsonProperty("_sl_no")
 	public String slNo;
 	@JsonProperty("_file_nm")
 	public String name;

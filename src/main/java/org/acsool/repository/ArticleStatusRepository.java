@@ -12,4 +12,6 @@ public interface ArticleStatusRepository  extends JpaRepository<ArticleStatus, L
 	ArticleStatus findByUId(long uId);
 
 	ArticleStatus findByUIdAndArtId(long uId, long artId);
+
+	List<ArticleStatus> findByArtId(long artId);
 }

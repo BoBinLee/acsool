@@ -22,16 +22,15 @@ import com.google.android.gcm.server.Sender;
 @Service
 public class GCMService {
 	// 누군가 짠을 해주었을 때 알람
-	public void sendZanMessage(String[] tokenIds, Reply reply) {
-		Message message = new Message.Builder().addData("subject", reply.subject).addData("content", reply.content)
-				.addData("emotion", reply.emotion).addData("type", "zan")
+	public void sendReplyMessage(String[] tokenIds, String repId) {
+		Message message = new Message.Builder().addData("repId", repId).addData("type", "reply")
 				.build();
 		sendMessage(tokenIds, message);
 	}
 	
 	// 누군가가 짠을 보내서 내가 받았을 때 알람
-	public void sendArticleMessage(String[] tokenIds, String artId, String content){
-		Message message = new Message.Builder().addData("artId", artId).addData("content", content).addData("type", "article")
+	public void sendArticleMessage(String[] tokenIds, String artId){
+		Message message = new Message.Builder().addData("artId", artId).addData("type", "article")
 				.build();
 		sendMessage(tokenIds, message);
 	}

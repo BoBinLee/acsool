@@ -10,6 +10,7 @@ import org.acsool.dto.SL0003;
 import org.acsool.dto.SL0004;
 import org.acsool.dto.SL0005;
 import org.acsool.dto.SL0006;
+import org.acsool.dto.SL0008;
 import org.acsool.utils.JacksonUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -75,7 +76,7 @@ public class ServiceTests {
 	}
 	
 	@Test
-//	@Ignore
+	@Ignore
 	public void sl0004() {
 		APICode reqCode = new APICode<SL0004>();
 		HashMap<String, String> sl = new HashMap<String, String>();
@@ -124,5 +125,20 @@ public class ServiceTests {
 		reqCode.tranData = sl;
 
 		slService.resSL0006(reqCode);
+	}
+	
+	@Test
+//	@Ignore
+	public void sl0008() {
+		APICode reqCode = new APICode<SL0008>();
+		HashMap<String, String> sl = new HashMap<String, String>();
+		
+		sl.put("_sl_no", "1");
+		reqCode.tranCd = "SL0008";
+		reqCode.tranData = sl;
+
+		APICode resCode = slService.resSL0008(reqCode);
+		String json = JacksonUtils.objectToJson(resCode);
+		System.out.println(json);
 	}
 }

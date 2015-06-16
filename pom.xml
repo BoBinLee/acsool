@@ -21,6 +21,7 @@
 	<properties>
 		<tomcat7-maven.version>2.2</tomcat7-maven.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		 <maven.test.skip>true</maven.test.skip>
 		<start-class>org.acsool.AcsoolApplication</start-class>
 		<java.version>1.7</java.version>
 	</properties>
