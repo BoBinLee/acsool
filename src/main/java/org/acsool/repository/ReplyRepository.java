@@ -13,4 +13,7 @@ public interface ReplyRepository  extends JpaRepository<Reply, Long> {
 	List<Reply> findByUId(long uId);
 	List<Reply> findByUIdAndVertified(long uId, int vertified);
 	Page<Reply> findByUIdAndVertified(long uId, int vertified, Pageable pageable);
+	Page<Reply> findByUIdAndRepIdGreaterThanAndVertified(long uId, long reqPoNo, int vertified, Pageable pageable);
+	Page<Reply> findByUIdAndRepIdGreaterThan(long uId, long reqPoNo, Pageable pageable);
+	Page<Reply> findByartIdAndRepIdGreaterThan(long artId, long reqPoNo, Pageable pageable);
 }

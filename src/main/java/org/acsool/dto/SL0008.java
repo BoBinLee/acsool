@@ -7,8 +7,8 @@ import org.acsool.dto.SL0002.SL0002Data;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SL0008 {
-	@JsonProperty("_sl_no")
-	public String slNo;
+	@JsonProperty("_art_no")
+	public String artNo;
 	@JsonProperty("_req_po_cnt")
 	public String reqPoCnt;
 	@JsonProperty("_req_po_no")
@@ -24,8 +24,8 @@ public class SL0008 {
 	public String resLastNo;
 	
 	public static class SL0008Data {
-		@JsonProperty("_art_no")
-		public String artNo;
+		@JsonProperty("_rep_no")
+		public String repNo;
 		@JsonProperty("_reply_subject")
 		public String subject;
 		@JsonProperty("_reply_content")

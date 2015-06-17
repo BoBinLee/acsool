@@ -28,7 +28,7 @@ public class APICode<T> implements Serializable {
 	public int errorAction;
 
 	public static enum Code {
-		SL0001, SL0002, SL0003, SL0004, SL0005, SL0006, SL0007, PS0001, PS0002
+		SL0001, SL0002, SL0003, SL0004, SL0005, SL0006, SL0007, PS0001, PS0002, SL0008
 	}
 
 	public static enum Status {

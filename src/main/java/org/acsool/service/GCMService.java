@@ -35,7 +35,7 @@ public class GCMService {
 		sendMessage(tokenIds, message);
 	}
 	
-	public void sendMessage(String[] tokenIds, Message message){
+	protected void sendMessage(String[] tokenIds, Message message){
 		Sender sender = new Sender("AIzaSyDtc1Lroot8QtYdgBA3yTfqiYRPdlQJxeY");
 //		String regId = "APA91bFPO7UzexoyF6a4Vo00RNtlWo0AcjKR9RC_rgjXAgq4K04XOzDXYsal5XrmEawh2wfrJZhi1-CBnmEyuPvFvfleQOmedBbtXdJ6uUsukGmW5Ip9fVpBAmG4ism8O0iJ99YNVDb5M_INKREUTHwxazeGV2TYHOLsWjR_FiQKMLfnnyb4gPI";
 

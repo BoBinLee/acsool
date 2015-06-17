@@ -23,6 +23,7 @@ public class ArticleFile {
 	public long artId;
 	public String type;
 	public String url;
+	@Column(name="public_id")
 	public String publicId;
 	public Timestamp created;
 	
