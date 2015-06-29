@@ -41,7 +41,7 @@ public class AppControllerTests {
 
 	@Test
 	public void sl0001() throws Exception {
-		APICode reqCode = new APICode();
+		APICode<SL0001> reqCode = new APICode<SL0001>();
 
 		reqCode.tranCd = "SL0001";
 		SL0001 sl = new SL0001();

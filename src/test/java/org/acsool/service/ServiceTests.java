@@ -119,7 +119,7 @@ public class ServiceTests {
 	}
 	
 	@Test
-	@Ignore
+//	@Ignore
 	public void sl0006() {
 		APICode reqCode = new APICode<SL0006>();
 		HashMap<String, String> sl = new HashMap<String, String>();
